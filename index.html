@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beverly Hills Erbil — The City Within a Garden</title>
+  <meta name="description" content="Beverly Hills Erbil — an immersive aerial experience of the masterplan: crescents of garden villas, sculpted twin towers and a grand central lawn in the heart of Kurdistan." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Marcellus&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body data-mode="hero">
+
+  <!-- ████ PRELOADER ████ -->
+  <div class="preloader" id="preloader">
+    <div class="preloader__inner">
+      <svg class="preloader__mark" viewBox="0 0 56 56" aria-hidden="true">
+        <rect x="3" y="3" width="50" height="50" rx="12" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M28 15 v26"/>
+          <path d="M28 16.5 h6.5 a5.6 5.6 0 0 1 0 11.2 H28 m6.5 0 a6.6 6.6 0 0 1 0 13.2 H28"/>
+          <path d="M28 16.5 h-6.5 a5.6 5.6 0 0 0 0 11.2 H28 m-6.5 0 a6.6 6.6 0 0 0 0 13.2 H28"/>
+        </g>
+      </svg>
+      <span class="preloader__ar">بيڤرلي هيلز</span>
+      <span class="preloader__en" data-split>BEVERLY HILLS</span>
+      <span class="preloader__pct" id="preloaderPct">00</span>
+    </div>
+  </div>
+
+  <!-- ████ CURSOR ████ -->
+  <div class="cursor" id="cursor">
+    <div class="cursor__dot"></div>
+    <div class="cursor__ring"><span class="cursor__label"></span></div>
+  </div>
+
+  <!-- ████ 3D WORLD ████ -->
+  <canvas id="world" class="world-canvas"></canvas>
+  <div class="world-labels" id="worldLabels" aria-hidden="true"></div>
+
+  <!-- color grade + scrim -->
+  <div class="grade" aria-hidden="true"></div>
+  <div class="scrim" id="scrim" aria-hidden="true"></div>
+  <!-- foreground drifting haze -->
+  <div class="haze haze--a" id="hazeA" aria-hidden="true"></div>
+  <div class="haze haze--b" id="hazeB" aria-hidden="true"></div>
+
+  <!-- ████ PERSISTENT UI ████ -->
+  <div class="ui">
+    <!-- sound -->
+    <button class="sound magnetic" id="soundBtn" data-cursor="hover" aria-label="Toggle ambient sound">
+      <span class="sound__bars"><i></i><i></i><i></i><i></i><i></i></span>
+    </button>
+
+    <!-- logo -->
+    <div class="brand" id="brand">
+      <svg class="brand__mark" viewBox="0 0 56 56" aria-hidden="true">
+        <rect x="3" y="3" width="50" height="50" rx="12" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <path d="M28 15 v26"/>
+          <path d="M28 16.5 h6.5 a5.6 5.6 0 0 1 0 11.2 H28 m6.5 0 a6.6 6.6 0 0 1 0 13.2 H28"/>
+          <path d="M28 16.5 h-6.5 a5.6 5.6 0 0 0 0 11.2 H28 m-6.5 0 a6.6 6.6 0 0 0 0 13.2 H28"/>
+        </g>
+      </svg>
+      <span class="brand__ar">بيڤرلي هيلز</span>
+      <span class="brand__en">Beverly Hills</span>
+    </div>
+
+    <!-- top right -->
+    <div class="ui__topright">
+      <button class="ui__link" id="inquireBtn" data-cursor="hover"><span>Inquire</span></button>
+      <button class="ui__link ui__link--exit" id="exitExplore" data-cursor="hover"><span>✕ &nbsp;Exit map</span></button>
+    </div>
+
+    <!-- hero centre -->
+    <div class="hero" id="hero">
+      <span class="hero__star" aria-hidden="true">✦</span>
+      <p class="hero__kicker">IN THE HEART <i>OF</i> ERBIL</p>
+      <h1 class="hero__title"><span data-split>BEVERLY</span> <span data-split>HILLS</span></h1>
+      <p class="hero__sub">Journey to the city within a garden.</p>
+      <button class="btn-cream magnetic" id="enterExplore" data-cursor="hover"><span>EXPLORE THE MAP</span></button>
+    </div>
+
+    <!-- bottom row -->
+    <div class="ui__bottom">
+      <span class="ui__coords">36.19° N &nbsp;44.01° E — KURDISTAN · IRAQ</span>
+      <button class="ui__start" id="enterSilent" data-cursor="hover">START WITHOUT AUDIO</button>
+      <button class="ui__link" id="detailsBtn" data-cursor="hover"><span>Site details &nbsp;+</span></button>
+    </div>
+  </div>
+
+  <!-- ████ EXPLORE UI ████ -->
+  <div class="explore-ui" id="exploreUi">
+    <div class="explore-ui__rail" id="districtRail">
+      <span class="explore-ui__rail-title">DISTRICTS</span>
+    </div>
+    <p class="explore-ui__hint" id="exploreHint">Drag to orbit · scroll to zoom · select a district</p>
+    <div class="explore-ui__compass" aria-hidden="true">
+      <svg viewBox="0 0 60 60"><circle cx="30" cy="30" r="27" fill="none" stroke="currentColor" stroke-width="1" opacity=".4"/><path d="M30 8 35 30 30 52 25 30Z" fill="currentColor"/><text x="30" y="6" text-anchor="middle" font-size="8" fill="currentColor">N</text></svg>
+    </div>
+    <div class="district-panel" id="districtPanel">
+      <button class="district-panel__close" id="panelClose" data-cursor="hover">✕</button>
+      <span class="district-panel__kicker" id="panelKicker"></span>
+      <h3 class="district-panel__title" id="panelTitle"></h3>
+      <p class="district-panel__desc" id="panelDesc"></p>
+      <ul class="district-panel__facts" id="panelFacts"></ul>
+      <button class="btn-cream district-panel__cta" id="panelCta" data-cursor="hover"><span>REGISTER INTEREST</span></button>
+    </div>
+  </div>
+
+  <!-- ████ SITE DETAILS DRAWER ████ -->
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <button class="drawer__close" id="drawerClose" data-cursor="hover">✕</button>
+    <span class="drawer__kicker">THE MASTERPLAN</span>
+    <h2 class="drawer__title">A city within<br/>a garden</h2>
+    <p class="drawer__text">On the green edge of Erbil, Beverly Hills gathers crescents of white garden villas, sculpted twin towers and a grand central lawn inside one emerald ring — every street ending in green, every window opening onto a park.</p>
+    <ul class="drawer__facts">
+      <li><span>Location</span><b>120m Ring Road, Erbil</b></li>
+      <li><span>Masterplan</span><b>1,200,000 m²</b></li>
+      <li><span>Garden villas</span><b>214</b></li>
+      <li><span>Tower residences</span><b>1,800+</b></li>
+      <li><span>Open green space</span><b>60%</b></li>
+      <li><span>Erbil Int. Airport</span><b>12 min</b></li>
+      <li><span>Erbil Citadel</span><b>15 min</b></li>
+      <li><span>Phase one</span><b>Q4 2026</b></li>
+    </ul>
+    <button class="btn-cream drawer__cta" id="drawerInquire" data-cursor="hover"><span>REGISTER INTEREST</span></button>
+  </aside>
+
+  <!-- ████ INQUIRE MODAL ████ -->
+  <div class="modal" id="modal" aria-hidden="true">
+    <div class="modal__bg" id="modalBg"></div>
+    <div class="modal__card">
+      <button class="modal__close" id="modalClose" data-cursor="hover">✕</button>
+      <span class="modal__kicker">REGISTER INTEREST</span>
+      <h2 class="modal__title">Your address,<br/>among the gardens</h2>
+      <form class="modal__form" id="contactForm" novalidate>
+        <div class="field"><input type="text" id="fName" required placeholder=" " /><label for="fName">Full name</label></div>
+        <div class="field"><input type="email" id="fEmail" required placeholder=" " /><label for="fEmail">Email address</label></div>
+        <div class="field"><input type="tel" id="fPhone" placeholder=" " /><label for="fPhone">Phone (optional)</label></div>
+        <div class="field">
+          <select id="fInterest" required><option value="" selected disabled hidden></option><option>Crescent Villa</option><option>Twin Tower Residence</option><option>Penthouse</option><option>Garden Tower Apartment</option></select>
+          <label for="fInterest">I'm interested in</label>
+        </div>
+        <button type="submit" class="btn-cream magnetic" data-cursor="hover"><span>REQUEST THE PREVIEW</span></button>
+        <p class="form-success" id="formSuccess">Thank you — our sales atelier will be in touch within 24 hours.</p>
+      </form>
+      <a class="modal__mail" href="mailto:sales@beverlyhillserbil.com" data-cursor="hover">sales@beverlyhillserbil.com</a>
+    </div>
+  </div>
+
+  <div class="grain" aria-hidden="true"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
